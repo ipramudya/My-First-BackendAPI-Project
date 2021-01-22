@@ -1,5 +1,6 @@
 const express = require('express');
 const dotenv = require('dotenv');
+const logger = require('./middleware/logger');
 
 //Menangkap file routes
 const bootcamps = require('./routes/bootcamps');
@@ -9,6 +10,9 @@ dotenv.config({ path: './config/config.env' });
 
 //Menjalankan express method
 const app = express();
+
+//Menggunakan logger middleware
+app.use(logger);
 
 //Memasang routers dan menghubungkan dengan bootcamps route
 app.use('/api/v1/bootcamps', bootcamps);
