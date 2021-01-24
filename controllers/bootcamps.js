@@ -1,103 +1,89 @@
 const Bootcamp = require('../models/Bootcamp');
 const ErrorResponse = require('../utilities/errorResponse');
+const asyncHandler = require('../middleware/async');
 
 //#desc         Mengambil seluruh data bootcamps
 //#route        GET /api/v1/bootcamps
 //#access       Public
-exports.getBootcamps = async (req, res, next) => {
-  try {
-    const getBootcamps = await Bootcamp.find();
-    res.status(200).json({
-      success: true,
-      count: getBootcamps.length,
-      data: getBootcamps,
-    });
-  } catch (err) {
-    next(err);
-  }
-};
+exports.getBootcamps = asyncHandler(async (req, res, next) => {
+  const getBootcamps = await Bootcamp.find();
+
+  res.status(200).json({
+    success: true,
+    count: getBootcamps.length,
+    data: getBootcamps,
+  });
+});
 
 //#desc         Mengambil salah satu data bootcamp
 //#route        GET /api/v1/bootcamps/:id
 //#access       Public
-exports.getBootcamp = async (req, res, next) => {
-  try {
-    const getBootcampID = await Bootcamp.findById(req.params.id);
-    res.status(200).json({
-      success: true,
-      data: getBootcampID,
-    });
+exports.getBootcamp = asyncHandler(async (req, res, next) => {
+  const getBootcampID = await Bootcamp.findById(req.params.id);
 
-    if (!getBootcampID) {
-      return next(
-        new ErrorResponse(`Bootcamp not found with id of ${req.params.id}`, 404)
-      );
-    }
-  } catch (err) {
-    next(err);
+  res.status(200).json({
+    success: true,
+    data: getBootcampID,
+  });
+
+  if (!getBootcampID) {
+    return next(
+      new ErrorResponse(`Bootcamp not found with id of ${req.params.id}`, 404)
+    );
   }
-};
+});
 
 //#desc         Membuat data bootcamps baru
 //#route        POST /api/v1/bootcamps
 //#access       Private
-exports.createBootcamp = async (req, res, next) => {
-  try {
-    const createBootcamp = await Bootcamp.create(req.body);
-    res.status(201).json({
-      success: true,
-      data: createBootcamp,
-    });
-  } catch (err) {
-    next(err);
-  }
-};
+exports.createBootcamp = asyncHandler(async (req, res, next) => {
+  const createBootcamp = await Bootcamp.create(req.body);
+
+  res.status(201).json({
+    success: true,
+    data: createBootcamp,
+  });
+});
 
 //#desc         Mengupdate data bootcamp
 //#route        PUT /api/v1/bootcamps/:id
 //#access       Private
-exports.updateBootcamp = async (req, res, next) => {
-  try {
-    const updateBootcamp = await Bootcamp.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      {
-        new: true,
-        runValidators: true,
-      }
-    );
-    res.status(200).json({
-      success: true,
-      data: updateBootcamp,
-    });
-
-    if (!updateBootcamp) {
-      return next(
-        new ErrorResponse(`Bootcamp not found with id of ${req.params.id}`, 404)
-      );
+exports.updateBootcamp = asyncHandler(async (req, res, next) => {
+  const updateBootcamp = await Bootcamp.findByIdAndUpdate(
+    req.params.id,
+    req.body,
+    {
+      new: true,
+      runValidators: true,
     }
-  } catch (err) {
-    next(err);
+  );
+
+  res.status(200).json({
+    success: true,
+    data: updateBootcamp,
+  });
+
+  if (!updateBootcamp) {
+    return next(
+      new ErrorResponse(`Bootcamp not found with id of ${req.params.id}`, 404)
+    );
   }
-};
+});
 
 //#desc         Menghapus data bootcamp tertentu
 //#route        DELETE /api/v1/bootcamps/:id
 //#access       Private
-exports.deleteBootcamp = async (req, res, next) => {
-  try {
-    const deleteBootcamp = await Bootcamp.findByIdAndDelete(req.params.id);
-    res.status(200).json({
-      success: true,
-      message: `Data of ID ${req.params.id} has been Deleted !`,
-    });
+exports.deleteBootcamp = asyncHandler(async (req, res, next) => {
+  const deleteBootcamp = await Bootcamp.findByIdAndDelete(req.params.id);
 
-    if (!deleteBootcamp) {
-      return next(
-        new ErrorResponse(`Bootcamp not found with id of ${req.params.id}`, 404)
-      );
-    }
-  } catch (err) {
-    next(err);
+  res.status(200).json({
+    success: true,
+    message: `Data of ID ${req.params.id} has been Deleted !`,
+  });
+
+  if (!deleteBootcamp) {
+    return next(
+      new ErrorResponse(`Bootcamp not found with id of ${req.params.id}`, 404)
+    );
   }
-};
+});
