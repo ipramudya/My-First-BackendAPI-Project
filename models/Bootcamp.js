@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const geocoder = require('../utilities/geocoder');
 const slugify = require('slugify');
 
 const BootcampSchema = new mongoose.Schema({
@@ -99,8 +100,28 @@ const BootcampSchema = new mongoose.Schema({
   },
 });
 
+// Membuat slug dari field nama
 BootcampSchema.pre('save', function (next) {
   this.slug = slugify(this.name, { lower: true });
+  next();
+});
+
+// Geocode dan Location Field
+BootcampSchema.pre('save', async function (next) {
+  const loc = await geocoder.geocode(this.address);
+  this.location = {
+    type: 'Point',
+    coordinates: [loc[0].longitude, loc[0].latitude],
+    formattedAddress: loc[0].formattedAddress,
+    street: loc[0].streetName,
+    city: loc[0].city,
+    zipcode: loc[0].zipcode,
+    country: loc[0].countryCode,
+  };
+
+  //Menolak address untuk disimpan ke mongoDB
+  this.address = undefined;
+
   next();
 });
 
