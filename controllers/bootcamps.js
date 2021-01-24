@@ -1,4 +1,5 @@
 const Bootcamp = require('../models/Bootcamp');
+const ErrorResponse = require('../utilities/errorResponse');
 
 //#desc         Mengambil seluruh data bootcamps
 //#route        GET /api/v1/bootcamps
@@ -12,7 +13,7 @@ exports.getBootcamps = async (req, res, next) => {
       data: getBootcamps,
     });
   } catch (err) {
-    res.status(400).json({ success: false });
+    next(err);
   }
 };
 
@@ -28,10 +29,12 @@ exports.getBootcamp = async (req, res, next) => {
     });
 
     if (!getBootcampID) {
-      return res.status(400).json({ success: false });
+      return next(
+        new ErrorResponse(`Bootcamp not found with id of ${req.params.id}`, 404)
+      );
     }
   } catch (err) {
-    res.status(400).json({ success: false });
+    next(err);
   }
 };
 
@@ -46,7 +49,7 @@ exports.createBootcamp = async (req, res, next) => {
       data: createBootcamp,
     });
   } catch (err) {
-    res.status(400).json({ success: false });
+    next(err);
   }
 };
 
@@ -69,10 +72,12 @@ exports.updateBootcamp = async (req, res, next) => {
     });
 
     if (!updateBootcamp) {
-      res.status(400).json({ success: false });
+      return next(
+        new ErrorResponse(`Bootcamp not found with id of ${req.params.id}`, 404)
+      );
     }
   } catch (err) {
-    res.status(400).json({ success: false });
+    next(err);
   }
 };
 
@@ -88,9 +93,11 @@ exports.deleteBootcamp = async (req, res, next) => {
     });
 
     if (!deleteBootcamp) {
-      return res.status(400).json({ success: false });
+      return next(
+        new ErrorResponse(`Bootcamp not found with id of ${req.params.id}`, 404)
+      );
     }
   } catch (err) {
-    res.status(400).json({ success: false });
+    next(err);
   }
 };
