@@ -8,6 +8,7 @@ exports.getBootcamps = async (req, res, next) => {
     const getBootcamps = await Bootcamp.find();
     res.status(200).json({
       success: true,
+      count: getBootcamps.length,
       data: getBootcamps,
     });
   } catch (err) {
@@ -81,12 +82,10 @@ exports.updateBootcamp = async (req, res, next) => {
 exports.deleteBootcamp = async (req, res, next) => {
   try {
     const deleteBootcamp = await Bootcamp.findByIdAndDelete(req.params.id);
-    res
-      .status(200)
-      .json({
-        success: true,
-        message: `Data of ID ${req.params.id} has been Deleted !`,
-      });
+    res.status(200).json({
+      success: true,
+      message: `Data of ID ${req.params.id} has been Deleted !`,
+    });
 
     if (!deleteBootcamp) {
       return res.status(400).json({ success: false });
