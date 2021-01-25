@@ -1,8 +1,9 @@
 const Bootcamp = require('../models/Bootcamp');
 const ErrorResponse = require('../utilities/errorResponse');
 const asyncHandler = require('../middleware/async');
+const geocoder = require('../utilities/geocoder');
 
-//#desc         Mengambil seluruh data bootcamps
+//#desc         Memperoleh seluruh data bootcamps
 //#route        GET /api/v1/bootcamps
 //#access       Public
 exports.getBootcamps = asyncHandler(async (req, res, next) => {
@@ -15,7 +16,7 @@ exports.getBootcamps = asyncHandler(async (req, res, next) => {
   });
 });
 
-//#desc         Mengambil salah satu data bootcamp
+//#desc         Memperoleh salah satu data bootcamp
 //#route        GET /api/v1/bootcamps/:id
 //#access       Public
 exports.getBootcamp = asyncHandler(async (req, res, next) => {
@@ -86,4 +87,29 @@ exports.deleteBootcamp = asyncHandler(async (req, res, next) => {
       new ErrorResponse(`Bootcamp not found with id of ${req.params.id}`, 404)
     );
   }
+});
+
+//#desc         Memperoleh data bootcamp dalam sebuah radius
+//#route        GET /api/v1/bootcamps/radius/:zipcode/:distance
+//#access       Private
+exports.getBootcampInRadius = asyncHandler(async (req, res, next) => {
+  const { zipcode, distance } = req.params;
+
+  // Peroleh Latitude dan Longitude
+  const loc = await geocoder.geocode(zipcode);
+  const lat = loc[0].latitude;
+  const long = loc[0].longitude;
+
+  // Kalkulasi Radius
+  // Radius Bumi = 3,963 mil/ 3,378 km
+  const radius = distance / 3963;
+  const getInRadius = await Bootcamp.find({
+    location: { $geoWithin: { $centerSphere: [[long, lat], radius] } },
+  });
+
+  res.status(200).json({
+    success: true,
+    count: getInRadius.length,
+    data: getInRadius,
+  });
 });
