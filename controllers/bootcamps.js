@@ -1,3 +1,4 @@
+const path = require('path');
 const Bootcamp = require('../models/Bootcamp');
 const ErrorResponse = require('../utilities/errorResponse');
 const asyncHandler = require('../middleware/async');
@@ -147,5 +148,60 @@ exports.getBootcampInRadius = asyncHandler(async (req, res, next) => {
     success: true,
     count: getInRadius.length,
     data: getInRadius,
+  });
+});
+
+//#desc         Upload Foto untuk Bootcamp
+//#route        PUT /api/v1/bootcamps/:id/photo
+//#access       Private
+exports.uploadBootcampPhoto = asyncHandler(async (req, res, next) => {
+  const uploadBootcampPhoto = await Bootcamp.findById(req.params.id);
+
+  if (!uploadBootcampPhoto) {
+    return next(
+      new ErrorResponse(`Bootcamp not found with id of ${req.params.id}`, 404)
+    );
+  }
+
+  const file = req.files.file;
+
+  // Cek jika telah memasukan file
+  if (!req.files) {
+    return next(new ErrorResponse(`Please upload a file`, 400));
+  }
+  // Cek jika ekstensi file adalah image
+  else if (
+    !file.mimetype === 'image/jpeg' ||
+    !file.mimetype.startsWith('image')
+  ) {
+    return next(new ErrorResponse(`Please upload an image file`, 400));
+  }
+  // Cek size dari file
+  else if (file.size > process.env.MAX_FILE_UPLOAD) {
+    return next(
+      new ErrorResponse(
+        `File too big, please upload file less then ${process.env.MAX_FILE_UPLOAD}`,
+        400
+      )
+    );
+  }
+  // Membuat "custom-file-name" agar tidak terjadi duplikasi nama file
+  file.name = `photo_${uploadBootcampPhoto._id}${path.parse(file.name).ext}`;
+
+  file.mv(`${process.env.FILE_UPLOAD_PATH}/${file.name}`, async (err) => {
+    if (err) {
+      console.log(err);
+      return next(
+        new ErrorResponse(
+          `Error Uploading Photo ${process.env.MAX_FILE_UPLOAD}`,
+          400
+        )
+      );
+    }
+    await Bootcamp.findByIdAndUpdate(req.params.id, { photo: file.name });
+    res.status(200).json({
+      success: true,
+      data: file.name,
+    });
   });
 });

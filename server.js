@@ -1,6 +1,8 @@
+const path = require('path');
 const express = require('express');
 const dotenv = require('dotenv');
 const morgan = require('morgan');
+const fileUpload = require('express-fileupload');
 const connectDB = require('./config/db');
 const errorHandler = require('./middleware/errorHandler');
 
@@ -24,6 +26,13 @@ app.use(express.json());
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
+
+// File Uploading
+app.use(fileUpload());
+
+// Set Static Folder
+// Kita dapat mengakses melalui http://localhost:5000/uploads/<filename.ext>
+app.use(express.static(path.join(__dirname, 'public')));
 
 //Memasang routers dan menghubungkan dengan bootcamps route
 app.use('/api/v1/bootcamps', bootcamps);
