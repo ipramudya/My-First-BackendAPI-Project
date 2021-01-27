@@ -7,7 +7,41 @@ const geocoder = require('../utilities/geocoder');
 //#route        GET /api/v1/bootcamps
 //#access       Public
 exports.getBootcamps = asyncHandler(async (req, res, next) => {
-  const getBootcamps = await Bootcamp.find();
+  let query;
+  const reqQuery = { ...req.query };
+
+  // Sorting Query
+
+  // Menghapus nilai tertentu berdasarkan params yang diberikan di dalam req.query
+  const removeFields = ['select', 'sort'];
+  removeFields.forEach((param) => delete reqQuery[param]);
+
+  // Filtering Query
+
+  let queryString = JSON.stringify(reqQuery);
+  queryString = queryString.replace(
+    /\b(eq|gt|gte|lt|lte|in)\b/g,
+    (match) => `$${match}`
+  );
+  const parseBack = JSON.parse(queryString);
+  query = Bootcamp.find(parseBack);
+
+  // Pengkondisian untuk Selecting
+  if (req.query.select) {
+    const fields = req.query.select.split(',').join(' ');
+    query = query.select(fields);
+  }
+
+  // Pengkondisian untuk Sorting
+  if (req.query.sort) {
+    const sortBy = req.query.sort.split(',').join(' ');
+    query = query.sort(sortBy);
+  } else {
+    query = query.sort('-createAt');
+  }
+
+  // Eksekusi querry
+  const getBootcamps = await query;
 
   res.status(200).json({
     success: true,

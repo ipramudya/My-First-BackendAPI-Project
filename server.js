@@ -12,6 +12,7 @@ connectDB();
 
 //Menangkap file routes
 const bootcamps = require('./routes/bootcamps');
+const courses = require('./routes/courses');
 
 //Menjalankan express method
 const app = express();
@@ -26,6 +27,7 @@ if (process.env.NODE_ENV === 'development') {
 
 //Memasang routers dan menghubungkan dengan bootcamps route
 app.use('/api/v1/bootcamps', bootcamps);
+app.use('/api/v1/courses', courses);
 
 //Menghandle Error Request API
 app.use(errorHandler);
