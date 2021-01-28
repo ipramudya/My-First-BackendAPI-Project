@@ -8,24 +8,17 @@ const Bootcamp = require('../models/Bootcamp');
 //#route        GET /api/v1/bootcamps/:bootcampId/courses
 //#access       Public
 exports.getCourses = asyncHandler(async (req, res, next) => {
-  let query;
-
   if (req.params.bootcampId) {
-    query = Course.find({ bootcamp: req.params.bootcampId });
-  } else {
-    query = Course.find().populate({
-      path: 'bootcamp',
-      select: 'name description',
+    const getCourses = Course.find({ bootcamp: req.params.bootcampId });
+
+    return res.status(200).json({
+      success: true,
+      count: getCourses.length,
+      data: getCourses,
     });
+  } else {
+    res.status(200).json(res.advancedResults);
   }
-
-  const getCourse = await query;
-
-  res.status(200).json({
-    success: true,
-    count: getCourse.length,
-    data: getCourse,
-  });
 });
 
 //#desc         Memperoleh single data course
